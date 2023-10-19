@@ -105,3 +105,5 @@ if args.windows_standalone_build:
 
 if args.disable_auto_launch:
     args.auto_launch = False
+
+enable_ait = False

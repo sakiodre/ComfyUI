@@ -1,0 +1,116 @@
+** ComfyUI start up time: 2023-10-19 22:53:48.872263
+
+Prestartup times for custom nodes:
+   0.0 seconds: D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\rgthree-comfy
+   0.0 seconds: D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\ComfyUI-Manager
+
+Total VRAM 24576 MB, total RAM 32509 MB
+xformers version: 0.0.20
+Set vram state to: HIGH_VRAM
+Device: cuda:0 NVIDIA GeForce RTX 3090 : cudaMallocAsync
+VAE dtype: torch.bfloat16
+Using xformers cross attention
+Adding extra search path checkpoints D:\StabilityMatrix-win-x64\Data\Models\StableDiffusion
+Adding extra search path vae D:\StabilityMatrix-win-x64\Data\Models\VAE
+Adding extra search path loras D:\StabilityMatrix-win-x64\Data\Models\Lora
+Adding extra search path loras D:\StabilityMatrix-win-x64\Data\Models\LyCORIS
+Adding extra search path upscale_models D:\StabilityMatrix-win-x64\Data\Models\ESRGAN
+Adding extra search path upscale_models D:\StabilityMatrix-win-x64\Data\Models\RealESRGAN
+Adding extra search path upscale_models D:\StabilityMatrix-win-x64\Data\Models\SwinIR
+Adding extra search path embeddings D:\StabilityMatrix-win-x64\Data\Models\TextualInversion
+Adding extra search path hypernetworks D:\StabilityMatrix-win-x64\Data\Models\Hypernetwork
+Adding extra search path controlnet D:\StabilityMatrix-win-x64\Data\Models\ControlNet
+Adding extra search path clip D:\StabilityMatrix-win-x64\Data\Models\CLIP
+Adding extra search path diffusers D:\StabilityMatrix-win-x64\Data\Models\Diffusers
+Adding extra search path gligen D:\StabilityMatrix-win-x64\Data\Models\GLIGEN
+Adding extra search path vae_approx D:\StabilityMatrix-win-x64\Data\Models\ApproxVAE
+INFO:aitemplate.backend.build_cache_base:Build cache disabled
+Traceback (most recent call last):
+  File "D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\nodes.py", line 1734, in load_custom_node
+    module_spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 883, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\ComfyUI-AIT\__init__.py", line 1, in <module>
+    from .ait_load import AIT_Unet_Loader
+  File "D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\ComfyUI-AIT\ait_load.py", line 111, in <module>
+    "AITLoader": AITLoader,
+NameError: name 'AITLoader' is not defined
+
+Cannot import D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\ComfyUI-AIT module for custom nodes: name 'AITLoader' is not defined
+Using xformers cross attention
+Traceback (most recent call last):
+  File "D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\nodes.py", line 1734, in load_custom_node
+    module_spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 883, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\ComfyUI-AnimateDiff-Evolved\__init__.py", line 2, in <module>
+    from .animatediff.nodes import NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS
+  File "D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\ComfyUI-AnimateDiff-Evolved\animatediff\nodes.py", line 18, in <module>
+    from .motion_module import InjectorVersion, eject_params_from_model, get_injected_mm_params, inject_params_into_model, load_motion_lora, load_motion_module
+  File "D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\ComfyUI-AnimateDiff-Evolved\animatediff\motion_module.py", line 11, in <module>
+    from .motion_module_ad import AnimDiffMotionWrapper, has_mid_block
+  File "D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\ComfyUI-AnimateDiff-Evolved\animatediff\motion_module_ad.py", line 9, in <module>
+    from .motion_utils import GenericMotionWrapper, InjectorVersion, BlockType, CrossAttentionMM
+  File "D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\ComfyUI-AnimateDiff-Evolved\animatediff\motion_utils.py", line 5, in <module>
+    from comfy.ldm.modules.attention import attention_basic, attention_pytorch, attention_split, attention_sub_quad, attention_xformers, default
+ImportError: cannot import name 'attention_basic' from 'comfy.ldm.modules.attention' (D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\comfy\ldm\modules\attention.py)
+
+Cannot import D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\ComfyUI-AnimateDiff-Evolved module for custom nodes: cannot import name 'attention_basic' from 'comfy.ldm.modules.attention' (D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\comfy\ldm\modules\attention.py)
+### Loading: ComfyUI-Manager (V0.36)
+### ComfyUI Revision: 1555 on 'test1' [8cc75c64] | Released on '2023-10-11'
+[VideoHelperSuite] - [0;32mINFO[0m - ffmpeg could not be found. Using ffmpeg from imageio-ffmpeg.
+Registered sys.path: ['D:\\StabilityMatrix-win-x64\\Data\\Packages\\ComfyUI\\custom_nodes\\comfyui_controlnet_aux\\src\\__init__.py', 'D:\\StabilityMatrix-win-x64\\Data\\Packages\\ComfyUI\\custom_nodes\\comfyui_controlnet_aux\\src\\custom_pycocotools', 'D:\\StabilityMatrix-win-x64\\Data\\Packages\\ComfyUI\\custom_nodes\\comfyui_controlnet_aux\\src\\custom_oneformer', 'D:\\StabilityMatrix-win-x64\\Data\\Packages\\ComfyUI\\custom_nodes\\comfyui_controlnet_aux\\src\\custom_mmpkg', 'D:\\StabilityMatrix-win-x64\\Data\\Packages\\ComfyUI\\custom_nodes\\comfyui_controlnet_aux\\src\\custom_midas_repo', 'D:\\StabilityMatrix-win-x64\\Data\\Packages\\ComfyUI\\custom_nodes\\comfyui_controlnet_aux\\src\\custom_detectron2', 'D:\\StabilityMatrix-win-x64\\Data\\Packages\\ComfyUI\\custom_nodes\\comfyui_controlnet_aux\\src\\controlnet_aux', 'D:\\StabilityMatrix-win-x64\\Data\\Packages\\ComfyUI\\custom_nodes\\comfyui_controlnet_aux\\src', 'D:\\StabilityMatrix-win-x64\\Data\\Packages\\ComfyUI\\custom_nodes\\ComfyUI-WD14-Tagger\\comfy', 'D:\\StabilityMatrix-win-x64\\Data\\Packages\\ComfyUI\\custom_nodes\\ComfyUI-Frame-Interpolation', 'D:\\StabilityMatrix-win-x64\\Data\\Packages\\ComfyUI\\venv\\lib\\site-packages\\git\\ext\\gitdb', 'D:\\StabilityMatrix-win-x64\\Data\\Packages\\ComfyUI\\custom_nodes\\ComfyUI-Custom-Scripts', 'D:\\StabilityMatrix-win-x64\\Data\\Packages\\ComfyUI\\comfy', 'D:\\StabilityMatrix-win-x64\\Data\\Packages\\ComfyUI', 'D:\\StabilityMatrix-win-x64\\Data\\Packages\\ComfyUI\\venv\\Scripts\\python310.zip', 'D:\\StabilityMatrix-win-x64\\Data\\Packages\\ComfyUI\\venv\\Scripts\\DLLs', 'D:\\StabilityMatrix-win-x64\\Data\\Packages\\ComfyUI\\venv\\Scripts\\lib', 'D:\\StabilityMatrix-win-x64\\Data\\Assets\\Python310', 'D:\\StabilityMatrix-win-x64\\Data\\Packages\\ComfyUI\\venv', 'D:\\StabilityMatrix-win-x64\\Data\\Packages\\ComfyUI\\venv\\lib\\site-packages', 'D:\\StabilityMatrix-win-x64\\Data\\Packages\\ComfyUI\\venv\\lib\\site-packages\\win32', 'D:\\StabilityMatrix-win-x64\\Data\\Packages\\ComfyUI\\venv\\lib\\site-packages\\win32\\lib', 'D:\\StabilityMatrix-win-x64\\Data\\Packages\\ComfyUI\\venv\\lib\\site-packages\\Pythonwin', '../..']
+D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\comfyui_controlnet_aux\node_wrappers\dwpose.py:26: UserWarning: DWPose: Onnxruntime not found or doesn't come with acceleration providers, switch to OpenCV with CPU device. DWPose might run very slowly
+  warnings.warn("DWPose: Onnxruntime not found or doesn't come with acceleration providers, switch to OpenCV with CPU device. DWPose might run very slowly")
+INFO:numexpr.utils:Note: NumExpr detected 24 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+INFO:numexpr.utils:NumExpr defaulting to 8 threads.
+[34mFizzleDorf Custom Nodes: [92mLoaded[0m
+[1;32m[Power Noise Suite]: 🦚🦚🦚 [93m[3mwark![0m 🦚🦚🦚
+[1;32m[Power Noise Suite]:[0m Tamed [93m11[0m wild nodes.
+INFO:websockets.server:server listening on 127.0.0.1:8288
+
+[32m[1m[rgthree] Loaded 15 exciting nodes.[0m
+[32m[rgthree] Optimizing ComfyUI recursive execution. [33mIf queueing and/or re-queueing seems broken, change "patch_recursive_execution" to false in rgthree_config.json [0m
+
+Traceback (most recent call last):
+  File "D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\nodes.py", line 1734, in load_custom_node
+    module_spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 883, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\was-node-suite-comfyui\__init__.py", line 1, in <module>
+    from .WAS_Node_Suite import NODE_CLASS_MAPPINGS
+  File "D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\was-node-suite-comfyui\WAS_Node_Suite.py", line 36, in <module>
+    from numba import jit
+  File "D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\venv\lib\site-packages\numba\__init__.py", line 55, in <module>
+    _ensure_critical_deps()
+  File "D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\venv\lib\site-packages\numba\__init__.py", line 42, in _ensure_critical_deps
+    raise ImportError("Numba needs NumPy 1.25 or less")
+ImportError: Numba needs NumPy 1.25 or less
+
+Cannot import D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\was-node-suite-comfyui module for custom nodes: Numba needs NumPy 1.25 or less
+
+Import times for custom nodes:
+   0.0 seconds: D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\ComfyUI_IPAdapter_plus
+   0.0 seconds: D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\ComfyUI-Advanced-ControlNet
+   0.0 seconds: D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\PowerNoiseSuite
+   0.0 seconds: D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\ComfyUI_experiments
+   0.0 seconds: D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\ComfyMath
+   0.0 seconds: D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\ComfyUI-Custom-Scripts
+   0.0 seconds (IMPORT FAILED): D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\ComfyUI-AnimateDiff-Evolved
+   0.0 seconds: D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\efficiency-nodes-comfyui
+   0.0 seconds: D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\ComfyUI-Frame-Interpolation
+   0.0 seconds: D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\Derfuu_ComfyUI_ModdedNodes
+   0.0 seconds: D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\ComfyUI-WD14-Tagger
+   0.0 seconds: D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\rgthree-comfy
+   0.0 seconds (IMPORT FAILED): D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\was-node-suite-comfyui
+   0.1 seconds: D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\ComfyUI-VideoHelperSuite
+   0.2 seconds: D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\ComfyUI-Manager
+   0.2 seconds: D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\ComfyUI_FizzNodes
+   0.5 seconds: D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\comfyui_controlnet_aux
+   1.0 seconds (IMPORT FAILED): D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\ComfyUI-AIT
+
+Starting server
+
+To see the GUI go to: http://127.0.0.1:8188
+FETCH DATA from: D:\StabilityMatrix-win-x64\Data\Packages\ComfyUI\custom_nodes\ComfyUI-Manager\extension-node-map.json
+INFO:websockets.server:connection open

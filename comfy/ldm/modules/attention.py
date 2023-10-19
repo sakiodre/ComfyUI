@@ -91,63 +91,6 @@ def zero_module(module):
     return module
 
 
-def Normalize(in_channels, dtype=None, device=None):
-    return torch.nn.GroupNorm(num_groups=32, num_channels=in_channels, eps=1e-6, affine=True, dtype=dtype, device=device)
-
-
-class SpatialSelfAttention(nn.Module):
-    def __init__(self, in_channels):
-        super().__init__()
-        self.in_channels = in_channels
-
-        self.norm = Normalize(in_channels)
-        self.q = torch.nn.Conv2d(in_channels,
-                                 in_channels,
-                                 kernel_size=1,
-                                 stride=1,
-                                 padding=0)
-        self.k = torch.nn.Conv2d(in_channels,
-                                 in_channels,
-                                 kernel_size=1,
-                                 stride=1,
-                                 padding=0)
-        self.v = torch.nn.Conv2d(in_channels,
-                                 in_channels,
-                                 kernel_size=1,
-                                 stride=1,
-                                 padding=0)
-        self.proj_out = torch.nn.Conv2d(in_channels,
-                                        in_channels,
-                                        kernel_size=1,
-                                        stride=1,
-                                        padding=0)
-
-    def forward(self, x):
-        h_ = x
-        h_ = self.norm(h_)
-        q = self.q(h_)
-        k = self.k(h_)
-        v = self.v(h_)
-
-        # compute attention
-        b,c,h,w = q.shape
-        q = rearrange(q, 'b c h w -> b (h w) c')
-        k = rearrange(k, 'b c h w -> b c (h w)')
-        w_ = torch.einsum('bij,bjk->bik', q, k)
-
-        w_ = w_ * (int(c)**(-0.5))
-        w_ = torch.nn.functional.softmax(w_, dim=2)
-
-        # attend to values
-        v = rearrange(v, 'b c h w -> b c (h w)')
-        w_ = rearrange(w_, 'b i j -> b j i')
-        h_ = torch.einsum('bij,bjk->bik', v, w_)
-        h_ = rearrange(h_, 'b c (h w) -> b c h w', h=h)
-        h_ = self.proj_out(h_)
-
-        return x+h_
-
-
 class CrossAttentionBirchSan(nn.Module):
     def __init__(self, query_dim, context_dim=None, heads=8, dim_head=64, dropout=0., dtype=None, device=None, operations=comfy.ops):
         super().__init__()
@@ -489,19 +432,119 @@ class CrossAttentionPytorch(nn.Module):
 
         return self.to_out(out)
 
-if model_management.xformers_enabled():
-    print("Using xformers cross attention")
-    CrossAttention = MemoryEfficientCrossAttention
-elif model_management.pytorch_attention_enabled():
-    print("Using pytorch cross attention")
-    CrossAttention = CrossAttentionPytorch
+if comfy.ops.ENABLE_AIT:
+    from aitemplate.compiler import ops
+    from aitemplate.frontend import nn
+
+    class GEGLU(nn.Module):
+        def __init__(self, dim_in, dim_out, dtype, operations=None):
+            super().__init__()
+            self.proj = nn.Linear(dim_in, dim_out, specialization="mul", dtype=dtype)
+            self.gate = nn.Linear(dim_in, dim_out, specialization="fast_gelu", dtype=dtype)
+
+        def forward(self, x):
+            return self.proj(x, self.gate(x))
+
+
+    class FeedForward(nn.Module):
+        def __init__(self, dim, dim_out=None, mult=4, glu=False, dropout=0.0, dtype=None, device=None, operations=None):
+            super().__init__()
+            inner_dim = int(dim * mult)
+            dim_out = default(dim_out, dim)
+            project_in = (
+                nn.Sequential(
+                    nn.Linear(dim, inner_dim, specialization="fast_gelu", dtype=dtype),
+                )
+                if not glu
+                else GEGLU(dim, inner_dim, dtype=dtype)
+            )
+
+            self.net = nn.Sequential(
+                project_in, nn.Dropout(dropout), nn.Linear(inner_dim, dim_out)
+            )
+
+        def forward(self, x, residual=None):
+            shape = ops.size()(x)
+            x = self.net(x)
+            x = ops.reshape()(x, shape)
+            if residual is not None:
+                return x + residual
+            else:
+                return x
+
+    class CrossAttention(nn.Module):
+        def __init__(
+            self,
+            query_dim,
+            context_dim=None,
+            heads=8,
+            dim_head=64,
+            dropout=0.0,
+            dtype="float16",
+            device=None,
+            operations=None,
+        ):
+            super().__init__()
+            inner_dim = dim_head * heads
+            context_dim = default(context_dim, query_dim)
+
+            self.heads = heads
+            self.dim_head = dim_head
+
+            self.to_q = nn.Linear(query_dim, inner_dim, bias=False, dtype=dtype)
+            self.to_k = nn.Linear(context_dim, inner_dim, bias=False, dtype=dtype)
+            self.to_v = nn.Linear(context_dim, inner_dim, bias=False, dtype=dtype)
+            self.to_out = nn.Sequential(
+                nn.Linear(inner_dim, query_dim, dtype=dtype), nn.Dropout(dropout)
+            )
+            self.attn_op = ops.mem_eff_attention(causal=False)
+
+        def forward(self, x, context=None, value=None, mask=None):
+            nheads = self.heads
+            d = self.dim_head
+
+            q = self.to_q(x)
+            context = default(context, x)
+            k = self.to_k(context)
+            if value is not None:
+                v = self.to_v(value)
+                del value
+            else:
+                v = self.to_v(context)
+
+            bs = q.shape()[0]
+
+            q = ops.reshape()(q, [bs, -1, self.heads, self.dim_head])
+            k = ops.reshape()(k, [bs, -1, self.heads, self.dim_head])
+            v = ops.reshape()(v, [bs, -1, self.heads, self.dim_head])
+            q = ops.permute()(q, [0, 2, 1, 3])
+            k = ops.permute()(k, [0, 2, 1, 3])
+            v = ops.permute()(v, [0, 2, 1, 3])
+
+            out = self.attn_op(
+                (ops.reshape()(q, [bs, nheads, -1, d])),
+                (ops.reshape()(k, [bs, nheads, -1, d])),
+                (ops.reshape()(v, [bs, nheads, -1, d])),
+            )
+            out = ops.reshape()(out, [bs, -1, nheads * d])
+            proj = self.to_out(out)
+            proj = ops.reshape()(proj, [bs, -1, nheads * d])
+            return proj
+
 else:
-    if args.use_split_cross_attention:
-        print("Using split optimization for cross attention")
-        CrossAttention = CrossAttentionDoggettx
+    if model_management.xformers_enabled():
+        print("Using xformers cross attention")
+        CrossAttention = MemoryEfficientCrossAttention
+    elif model_management.pytorch_attention_enabled():
+        print("Using pytorch cross attention")
+        CrossAttention = CrossAttentionPytorch
     else:
-        print("Using sub quadratic optimization for cross attention, if you have memory or speed issues try using: --use-split-cross-attention")
-        CrossAttention = CrossAttentionBirchSan
+        if args.use_split_cross_attention:
+            print("Using split optimization for cross attention")
+            CrossAttention = CrossAttentionDoggettx
+        else:
+            print("Using sub quadratic optimization for cross attention, if you have memory or speed issues try using: --use-split-cross-attention")
+            CrossAttention = CrossAttentionBirchSan
 
 
 class BasicTransformerBlock(nn.Module):
@@ -654,7 +697,7 @@ class SpatialTransformer(nn.Module):
             context_dim = [context_dim] * depth
         self.in_channels = in_channels
         inner_dim = n_heads * d_head
-        self.norm = Normalize(in_channels, dtype=dtype, device=device)
+        self.norm = nn.GroupNorm(num_groups=32, num_channels=in_channels, eps=1e-6, affine=True, dtype=dtype, device=device)
         if not use_linear:
             self.proj_in = operations.Conv2d(in_channels,
                                      inner_dim,
@@ -682,12 +725,20 @@ class SpatialTransformer(nn.Module):
         # note: if no context is given, cross-attention defaults to self-attention
         if not isinstance(context, list):
             context = [context] * len(self.transformer_blocks)
-        b, c, h, w = x.shape
+        if comfy.ops.ENABLE_AIT:
+            b, h, w, c = x.shape()
+        else:
+            b, c, h, w = x.shape
         x_in = x
         x = self.norm(x)
         if not self.use_linear:
             x = self.proj_in(x)
-        x = rearrange(x, 'b c h w -> b (h w) c').contiguous()
+
+        if comfy.ops.ENABLE_AIT:
+            x = ops.reshape()(x, [b, -1, c])
+        else:
+            x = x.movedim(1, -1).reshape((b, -1, c)).contiguous()
+
         if self.use_linear:
             x = self.proj_in(x)
         for i, block in enumerate(self.transformer_blocks):
@@ -695,7 +746,12 @@ class SpatialTransformer(nn.Module):
             x = block(x, context=context[i], transformer_options=transformer_options)
         if self.use_linear:
             x = self.proj_out(x)
-        x = rearrange(x, 'b (h w) c -> b c h w', h=h, w=w).contiguous()
+
+        if comfy.ops.ENABLE_AIT:
+            x = ops.reshape()(x, [b, h, w, c])
+        else:
+            x = x.movedim(-1, 1).reshape((b, c, h, w)).contiguous()
+
         if not self.use_linear:
             x = self.proj_out(x)
         return x + x_in
